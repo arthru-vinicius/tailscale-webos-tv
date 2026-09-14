@@ -1,0 +1,11 @@
+{
+  "id": "com.github.arthru-vinicius.tailscale-tv",
+  "title": "Tailscale TV",
+  "main": "index.html",
+  "icon": "icon.png",
+  "type": "web",
+  "vendor": "arthru-vinicius",
+  "version": "0.1.0",
+  "disableBackHistoryAPI": true,
+  "appDescription": "Tailscale client for rooted LG webOS with Homebrew Channel"
+}

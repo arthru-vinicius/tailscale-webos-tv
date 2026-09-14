@@ -1,0 +1,16 @@
+dist/
+*.ipk
+.build/
+.DS_Store
+
+# Local test/build artifacts
+*.log
+*.pid
+
+# Never commit real auth keys
+authkey
+*.authkey
+
+# Built binaries (produced by scripts/build-binaries.sh)
+app/com.github.arthru-vinicius.tailscale-tv/payload/tailscale/bin/tailscale.combined.armv7
+app/com.github.arthru-vinicius.tailscale-tv/payload/tailscale/bin/tailscale.combined.arm64
