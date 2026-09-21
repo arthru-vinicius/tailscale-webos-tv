@@ -50,6 +50,12 @@ case "$ARCH" in
 esac
 
 echo
+echo "== restoring executable bits =="
+# IPKs packaged on Windows carry no executable bit (files arrive as 0666),
+# so restore it here, before the checks below.
+chmod 755 "$SRC/install.sh" "$SRC"/scripts/*.sh "$SRC"/bin/tailscale.combined.* 2>/dev/null || true
+
+echo
 echo "== checking binaries =="
 if [ ! -x "$SRC/bin/$SRC_BIN" ]; then
   echo "ERROR: missing executable $SRC/bin/$SRC_BIN"

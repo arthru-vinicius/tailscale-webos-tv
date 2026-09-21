@@ -18,7 +18,8 @@ CHECKOUT="$ROOT/.build/tailscale-src"
 if [ ! -d "$CHECKOUT" ]; then
   echo "== cloning tailscale/tailscale =="
   mkdir -p "$ROOT/.build"
-  git clone --depth 1 https://github.com/tailscale/tailscale "$CHECKOUT"
+  # autocrlf=false: on Windows, CRLF conversion would break build_dist.sh.
+  git clone --depth 1 -c core.autocrlf=false https://github.com/tailscale/tailscale "$CHECKOUT"
 fi
 
 if [ -n "$TAILSCALE_REF" ]; then
@@ -35,14 +36,14 @@ echo "== building tailscale.combined for linux/arm (ARMv7, 32-bit) =="
 (
   cd "$CHECKOUT"
   GOOS=linux GOARCH=arm GOARM=7 CGO_ENABLED=0 \
-    ./build_dist.sh --extra-small -o "$BIN/tailscale.combined.armv7" tailscale.com/cmd/tailscaled
+    ./build_dist.sh --extra-small --box -o "$BIN/tailscale.combined.armv7" tailscale.com/cmd/tailscaled
 )
 
 echo "== building tailscale.combined for linux/arm64 =="
 (
   cd "$CHECKOUT"
   GOOS=linux GOARCH=arm64 CGO_ENABLED=0 \
-    ./build_dist.sh --extra-small -o "$BIN/tailscale.combined.arm64" tailscale.com/cmd/tailscaled
+    ./build_dist.sh --extra-small --box -o "$BIN/tailscale.combined.arm64" tailscale.com/cmd/tailscaled
 )
 
 chmod 755 "$BIN/tailscale.combined.armv7" "$BIN/tailscale.combined.arm64"

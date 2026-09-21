@@ -18,7 +18,15 @@ command -v "$PACKAGER" >/dev/null 2>&1 || {
 mkdir -p "$DIST"
 rm -f "$IPK"
 
-"$PACKAGER" --force-arch all --outdir "$DIST" "$APP"
+# ares-cli-rs supports --force-arch; LG's @webos-tools/cli does not (and
+# already emits "all" for a web app without native services).
+FORCE_ARCH=""
+if "$PACKAGER" --help 2>&1 | grep -q -- '--force-arch'; then
+  FORCE_ARCH="--force-arch all"
+fi
+
+# shellcheck disable=SC2086
+"$PACKAGER" $FORCE_ARCH --outdir "$DIST" "$APP"
 
 test -f "$IPK" || {
   echo "ERROR: ares-package did not create $IPK" >&2

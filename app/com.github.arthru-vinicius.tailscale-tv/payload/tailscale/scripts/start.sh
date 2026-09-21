@@ -46,7 +46,7 @@ fi
 echo
 echo "== checking login state =="
 BACKEND_STATE="$("$TAILSCALE" --socket="$SOCKET" status --json 2>/dev/null \
-  | sed -n 's/.*"BackendState":"\([^"]*\)".*/\1/p')"
+  | sed -n 's/.*"BackendState": *"\([^"]*\)".*/\1/p')"
 echo "BackendState: ${BACKEND_STATE:-unknown}"
 
 if [ "$BACKEND_STATE" != "Running" ]; then

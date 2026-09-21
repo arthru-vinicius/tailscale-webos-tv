@@ -11,8 +11,9 @@ MANIFEST="$ROOT/dist/$APP_ID.manifest.json"
 test -f "$IPK" || { echo "ERROR: missing $IPK" >&2; exit 1; }
 test -f "$MANIFEST" || { echo "ERROR: missing $MANIFEST" >&2; exit 1; }
 
+# README.md is deliberately excluded: it credits the reference project.
 if grep -R -n -E 'cfernande1470|webos-wireguard|org\.webosbrew\.wireguard' \
-  "$APP" "$ROOT/README.md" "$ROOT/$APP_ID.manifest.json"; then
+  "$APP" "$ROOT/$APP_ID.manifest.json"; then
   echo "ERROR: leftover reference-project text found" >&2
   exit 1
 fi
@@ -42,7 +43,15 @@ if grep -R -n -E 'TAILSCALED?="\$BASE/bin/' "$APP/payload/tailscale/scripts"; th
   exit 1
 fi
 
-CONTROL="$(ar p "$IPK" control.tar.gz | tar xzO control)"
+# Members are extracted with `ar x` rather than piped out with `ar p`: MinGW's
+# ar writes stdout in text mode on Windows, which corrupts the gzip streams.
+WORK="$(mktemp -d)"
+trap 'rm -rf "$WORK"' EXIT
+(cd "$WORK" && ar x "$IPK")
+DATA="$WORK/data.tar.gz"
+DATA_LIST="$(tar tzf "$DATA")"
+
+CONTROL="$(tar xzOf "$WORK/control.tar.gz" control)"
 echo "$CONTROL" | grep -qx "Package: $APP_ID"
 echo "$CONTROL" | grep -qx "Version: $VERSION"
 echo "$CONTROL" | grep -qx 'Architecture: all'
@@ -53,11 +62,23 @@ if ar tv "$IPK" | grep -q ' 1970 '; then
   exit 1
 fi
 
-ar p "$IPK" data.tar.gz | tar tzf - | grep -q "^usr/palm/applications/$APP_ID/appinfo.json$"
-ar p "$IPK" data.tar.gz | tar tzf - | grep -q "^usr/palm/applications/$APP_ID/payload/tailscale/scripts/boot.sh$"
-ar p "$IPK" data.tar.gz | tar tzf - | grep -q "^usr/palm/packages/$APP_ID/packageinfo.json$"
-ar p "$IPK" data.tar.gz | tar xzO "usr/palm/applications/$APP_ID/appinfo.json" | grep -q "\"id\": \"$APP_ID\""
+echo "$DATA_LIST" | grep -q "^usr/palm/applications/$APP_ID/appinfo.json$"
+echo "$DATA_LIST" | grep -q "^usr/palm/applications/$APP_ID/icon.png$"
+echo "$DATA_LIST" | grep -q "^usr/palm/applications/$APP_ID/payload/tailscale/scripts/boot.sh$"
+echo "$DATA_LIST" | grep -q "^usr/palm/applications/$APP_ID/payload/tailscale/bin/tailscale.combined.armv7$"
+echo "$DATA_LIST" | grep -q "^usr/palm/applications/$APP_ID/payload/tailscale/bin/tailscale.combined.arm64$"
+echo "$DATA_LIST" | grep -q "^usr/palm/packages/$APP_ID/packageinfo.json$"
+tar xzOf "$DATA" "usr/palm/applications/$APP_ID/appinfo.json" | grep -q "\"id\": \"$APP_ID\""
 grep -q "\"id\": \"$APP_ID\"" "$MANIFEST"
 grep -q "${APP_ID}_${VERSION}_all.ipk" "$MANIFEST"
+
+# Non-fatal: install.sh restores the bits on the TV, but a release IPK should
+# ship with them so the boot hook survives an app update.
+if tar tvzf "$DATA" \
+  | grep -E 'payload/tailscale/(install\.sh|scripts/[^/]+\.sh|bin/tailscale\.combined\.[a-z0-9]+)$' \
+  | grep -qv '^-..x'; then
+  echo "WARNING: some packaged scripts/binaries lack the executable bit (typical when packaging on Windows)." >&2
+  echo "         install.sh restores it on the TV; build the release IPK on Linux/WSL/CI to ship it correctly." >&2
+fi
 
 echo "Release verification passed for $APP_ID $VERSION"

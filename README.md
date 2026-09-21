@@ -69,12 +69,23 @@ This requires:
 - `ares-package`, from either LG's `@webos-tools/cli` or webOSBrew's
   `ares-cli-rs`. Set `ARES_PACKAGE=/path/to/ares-package` if it isn't on
   `PATH`.
+- A POSIX shell with `make`, `git`, `file`, `ar` and `tar` (Git Bash works
+  on Windows).
+
+**Building on Windows:** it works, with two caveats. Packagers running on
+Windows cannot record the executable bit, so the resulting IPK ships its
+scripts and binaries as non-executable; `install.sh` restores the bits on the
+TV, and `make verify` prints a warning. For an official release, build on
+Linux, WSL or CI so the modes are correct from the start. Also, the build
+clones Tailscale with `core.autocrlf=false` so `build_dist.sh` isn't broken by
+CRLF conversion.
 
 `scripts/build-binaries.sh` clones `tailscale/tailscale` into `.build/` (not
-committed) and builds with the official `build_dist.sh --extra-small` helper,
-which combines `tailscale` and `tailscaled` into one binary using the
-busybox-style argv0 trick (`ts_include_cli`-equivalent behavior baked into
-`--extra-small` when targeting `cmd/tailscaled`). Pin a specific release with
+committed) and builds with the official `build_dist.sh --extra-small --box`
+helper. `--extra-small` strips unused features to shrink the binary; `--box`
+adds the `ts_include_cli` build tag, which is what folds `tailscale` and
+`tailscaled` into one binary using the busybox-style argv0 trick (without it,
+the `tailscale` symlink would not work as a CLI). Pin a specific release with
 `TAILSCALE_REF=v1.x.y make package`.
 
 Output:
@@ -193,7 +204,7 @@ app/com.github.arthru-vinicius.tailscale-tv/
   css/
   js/
   lib/
-  icon.png                      (add before packaging — see below)
+  icon.png                      (80x80, original artwork — see below)
   payload/tailscale/
     install.sh
     bin/
@@ -216,9 +227,10 @@ scripts/
 
 ### Icon
 
-`app/com.github.arthru-vinicius.tailscale-tv/icon.png` is not included yet —
-add a square PNG (80x80 is the LG-recommended launcher size) before running
-`make package`.
+`app/com.github.arthru-vinicius.tailscale-tv/icon.png` is an 80x80 PNG (the
+LG-recommended launcher size): a TV with three linked nodes on screen. It is
+original artwork and intentionally does not reuse or imitate the Tailscale
+logo, in line with the trademark note above.
 
 ---
 
