@@ -1,5 +1,5 @@
 const BASE = "/var/lib/webosbrew/tailscale-tv";
-const APPID = "com.github.arthru-vinicius.tailscale-tv";
+const APPID = "com.github.tailscale-webos-tv.tailscale-tv";
 const HB_SERVICE = "luna://org.webosbrew.hbchannel.service";
 
 const TEXT = {

@@ -1,0 +1,10 @@
+{
+  "id": "com.github.tailscale-webos-tv.tailscale-tv",
+  "version": "0.1.0",
+  "type": "web",
+  "title": "Tailscale TV",
+  "iconUri": "https://raw.githubusercontent.com/arthru-vinicius/tailscale-webos-tv/main/app/com.github.tailscale-webos-tv.tailscale-tv/icon.png",
+  "sourceUrl": "https://github.com/arthru-vinicius/tailscale-webos-tv",
+  "rootRequired": true,
+  "ipkUrl": "https://github.com/arthru-vinicius/tailscale-webos-tv/releases/download/v0.1.0/com.github.tailscale-webos-tv.tailscale-tv_0.1.0_all.ipk"
+}

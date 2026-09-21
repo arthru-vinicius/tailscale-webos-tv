@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eu
 
-APPID="com.github.arthru-vinicius.tailscale-tv"
+APPID="com.github.tailscale-webos-tv.tailscale-tv"
 DST="/var/lib/webosbrew/tailscale-tv"
 INIT_FILE="/var/lib/webosbrew/init.d/90-tailscale-tv"
 

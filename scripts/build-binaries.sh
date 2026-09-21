@@ -2,7 +2,7 @@
 set -eu
 
 ROOT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
-APPID="com.github.arthru-vinicius.tailscale-tv"
+APPID="com.github.tailscale-webos-tv.tailscale-tv"
 APP="$ROOT/app/$APPID"
 BIN="$APP/payload/tailscale/bin"
 TAILSCALE_REF="${TAILSCALE_REF:-}"
